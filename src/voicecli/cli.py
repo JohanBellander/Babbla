@@ -15,6 +15,7 @@ import time
 from pathlib import Path
 from typing import Optional, Sequence
 
+from .chunker import chunk_text
 from .config import load_config
 from .elevenlabs_provider import ElevenLabsProvider
 from .playback import AudioDeviceError, PlaybackEngine
@@ -262,9 +263,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return 2
 
     if args.dry_run:
+        chunks = chunk_text(text, max_chars=config.chunk_max_chars)
+        settings = _build_provider_settings(config)
         print("Dry run mode. No synthesis performed.")
-        print(f"Voice: {config.voice_id} | Model: {config.model_id}")
-        print(f"Characters: {len(text)}")
+        print(
+            f"Voice: {settings['voice_id']} | Model: {settings['model_id']} | "
+            f"Stability: {settings['stability']} | Similarity: {settings['similarity_boost']}"
+        )
+        print(f"Chunks: {len(chunks)} total (max_chars={config.chunk_max_chars})")
+        for idx, chunk in enumerate(chunks, start=1):
+            estimated_frames = max(1, round(len(chunk) / 40))
+            print(
+                f"  {idx}. length={len(chunk)} chars | estimated_frames={estimated_frames}"
+            )
         return 0
 
     playback_engine = PlaybackEngine()

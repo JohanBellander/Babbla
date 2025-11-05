@@ -9,17 +9,16 @@ rest of the application can react consistently.
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Optional
 
 import sounddevice as sd
 
+from .errors import AudioDeviceError
 from .provider_base import AudioFrame
+from .wav_saver import WavSink
 
 logger = logging.getLogger(__name__)
-
-
-class AudioDeviceError(RuntimeError):
-    """Raised when the playback subsystem encounters unrecoverable issues."""
 
 
 class PlaybackEngine:
@@ -31,12 +30,14 @@ class PlaybackEngine:
         device: int | str | None = None,
         blocksize: int = 0,
         dtype: str = "int16",
+        wav_path: str | Path | None = None,
     ) -> None:
         self._device = device
         self._blocksize = blocksize
         self._dtype = dtype
         self._sample_rate: Optional[int] = None
         self._stream: sd.RawOutputStream | None = None
+        self._wav_sink: WavSink | None = WavSink(wav_path) if wav_path else None
 
     def start(self, sample_rate: int) -> None:
         """Start the underlying sounddevice RawOutputStream."""
@@ -54,6 +55,8 @@ class PlaybackEngine:
             )
             self._stream.start()
             self._sample_rate = sample_rate
+            if self._wav_sink is not None:
+                self._wav_sink.start(sample_rate)
             logger.debug(
                 "PlaybackEngine started (sample_rate=%s, device=%s)",
                 sample_rate,
@@ -84,6 +87,8 @@ class PlaybackEngine:
         try:
             self._stream.write(pcm_bytes)
             logger.debug("PlaybackEngine wrote %s bytes", len(pcm_bytes))
+            if self._wav_sink is not None:
+                self._wav_sink.write(pcm_bytes)
         except sd.PortAudioError as exc:  # pragma: no cover - hardware dependent
             logger.error("Audio stream write failed: %s", exc)
             raise AudioDeviceError(str(exc)) from exc
@@ -104,4 +109,9 @@ class PlaybackEngine:
         finally:
             self._stream = None
             self._sample_rate = None
+            if self._wav_sink is not None:
+                self._wav_sink.close()
 
+    def attach_wav(self, path: str | Path) -> None:
+        """Attach a WAV sink that mirrors submitted audio to disk."""
+        self._wav_sink = WavSink(path)
