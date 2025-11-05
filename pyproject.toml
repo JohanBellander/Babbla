@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voicecli"
+version = "0.0.1"
+description = "Low-latency ElevenLabs streaming TTS CLI (scaffold)"
+authors = [{name = "VoiceCLI Contributors"}]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "sounddevice>=0.4.6",
+    "websockets>=12.0",
+    "requests>=2.32.0",
+]
+
+[project.scripts]
+voicecli = "voicecli.cli:main"
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

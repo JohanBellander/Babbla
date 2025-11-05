@@ -1,0 +1,43 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.dist-info/
+*.egg-info/
+build/
+dist/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Testing & coverage
+.pytest_cache/
+.mypy_cache/
+.tox/
+coverage.xml
+htmlcov/
+
+# IDE/editor
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node (if added later)
+node_modules/
+
+# Beads local DB (keep issues.jsonl tracked)
+.beads/beads.db
+
+# Optional: uncomment to exclude ephemeral planning history
+# history/
