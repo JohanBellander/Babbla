@@ -4,9 +4,9 @@ import wave
 
 import pytest
 
-from voicecli.playback import PlaybackEngine
-from voicecli.provider_base import AudioFrame
-from voicecli.wav_saver import WavSink
+from babbla.playback import PlaybackEngine
+from babbla.provider_base import AudioFrame
+from babbla.wav_saver import WavSink
 
 
 def test_wav_header_integrity(tmp_path):
@@ -42,7 +42,7 @@ def test_wav_duration_with_playback(monkeypatch, tmp_path):
         def close(self):
             return None
 
-    from voicecli import playback as playback_module
+    from babbla import playback as playback_module
 
     monkeypatch.setattr(playback_module.sd, "RawOutputStream", DummyStream)
 

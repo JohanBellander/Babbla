@@ -1,5 +1,5 @@
 """
-Structured logging helpers for VoiceCLI.
+Structured logging helpers for Babbla.
 """
 
 from __future__ import annotations

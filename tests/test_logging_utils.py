@@ -4,7 +4,7 @@ import io
 import json
 import logging
 
-from voicecli.logging_utils import LogFormat, create_event_logger
+from babbla.logging_utils import LogFormat, create_event_logger
 
 
 def _make_logger(name: str):
@@ -17,7 +17,7 @@ def _make_logger(name: str):
 
 
 def test_json_logging_format():
-    logger, handler, stream = _make_logger("voicecli.json")
+    logger, handler, stream = _make_logger("babbla.json")
     event_logger = create_event_logger(logger, LogFormat.JSON)
     event_logger.log("chunk_start", index=1, api_key="abcdef1234")
     handler.flush()
@@ -29,7 +29,7 @@ def test_json_logging_format():
 
 
 def test_human_format_contains_event_type():
-    logger, handler, stream = _make_logger("voicecli.human")
+    logger, handler, stream = _make_logger("babbla.human")
     event_logger = create_event_logger(logger, LogFormat.HUMAN)
     event_logger.log("retry", attempt=2)
     handler.flush()
@@ -40,7 +40,7 @@ def test_human_format_contains_event_type():
 
 
 def test_redaction_handles_short_keys():
-    logger, handler, stream = _make_logger("voicecli.redact")
+    logger, handler, stream = _make_logger("babbla.redact")
     event_logger = create_event_logger(logger, LogFormat.JSON)
     event_logger.log("auth", api_key="abc")
     handler.flush()

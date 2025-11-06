@@ -2,7 +2,7 @@
 
 import pytest
 
-from voicecli.provider_base import AudioFrame
+from babbla.provider_base import AudioFrame
 
 
 class MockProvider:

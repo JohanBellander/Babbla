@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timedelta, timezone
 
-from voicecli.voice_catalog import fetch_voices, fuzzy_match
+from babbla.voice_catalog import fetch_voices, fuzzy_match
 
 
 def test_cache_logic_returns_fresh_cache(tmp_path):

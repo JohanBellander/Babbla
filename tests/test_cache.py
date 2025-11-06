@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from voicecli.cache import PhraseCache, make_cache_key
+from babbla.cache import PhraseCache, make_cache_key
 
 
 def test_cache_key_determinism():

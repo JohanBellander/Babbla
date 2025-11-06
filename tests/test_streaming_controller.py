@@ -6,14 +6,33 @@ import logging
 
 import pytest
 
-from voicecli.cache import PhraseCache
-from voicecli.errors import ProviderAuthError, ProviderNetworkError, ProviderRateLimitError
-from voicecli.logging_utils import LogFormat, create_event_logger
-from voicecli.provider_base import AudioFrame, TTSProvider
-from voicecli.metrics import ChunkMetrics\nfrom voicecli.streaming_controller import StreamingController
+from babbla.cache import PhraseCache
+from babbla.errors import ProviderAuthError, ProviderNetworkError, ProviderRateLimitError
+from babbla.logging_utils import LogFormat, create_event_logger
+from babbla.provider_base import AudioFrame, TTSProvider
+from babbla.metrics import ChunkMetrics
+from babbla.streaming_controller import StreamingController
 
 
-\n\ndef _make_metric(request: float, first: float, playback: float, complete: float, index: int = 0, char_len: int = 50) -> ChunkMetrics:\n    return ChunkMetrics(\n        chunk_index=index,\n        char_len=char_len,\n        request_start=request,\n        first_frame=first,\n        playback_start=playback,\n        chunk_complete=complete,\n    )\nclass SimulatedClock:
+def _make_metric(
+    request: float,
+    first: float,
+    playback: float,
+    complete: float,
+    index: int = 0,
+    char_len: int = 50,
+) -> ChunkMetrics:
+    return ChunkMetrics(
+        chunk_index=index,
+        char_len=char_len,
+        request_start=request,
+        first_frame=first,
+        playback_start=playback,
+        chunk_complete=complete,
+    )
+
+
+class SimulatedClock:
     def __init__(self) -> None:
         self._now = 0.0
 
@@ -272,7 +291,7 @@ def test_streaming_controller_json_logging(tmp_path):
     provider = FakeProvider(clock, delays_per_chunk={0: [0.05, 0.05]})
     playback = FakePlayback()
 
-    logger = logging.getLogger("voicecli.jsonlogger")
+    logger = logging.getLogger("babbla.jsonlogger")
     logger.setLevel(logging.INFO)
     stream = io.StringIO()
     handler = logging.StreamHandler(stream)
@@ -293,10 +312,6 @@ def test_streaming_controller_json_logging(tmp_path):
     lines = [line for line in stream.getvalue().splitlines() if line]
     assert any(json.loads(line)["event"] == "chunk_start" for line in lines)
     logger.handlers.clear()
-
-"\n\n\ndef _make_metric(request: float, first: float, playback: float, complete: float, index: int = 0, char_len: int = 50) -> ChunkMetrics:\n    return ChunkMetrics(\n        chunk_index=index,\n        char_len=char_len,\n        request_start=request,\n        first_frame=first,\n        playback_start=playback,\n        chunk_complete=complete,\n    )\n"
-
-
 
 
 def test_adaptive_prebuffer_increase():

@@ -5,8 +5,8 @@ from array import array
 
 import pytest
 
-from voicecli.playback import AudioDeviceError, PlaybackEngine
-from voicecli.provider_base import AudioFrame
+from babbla.playback import AudioDeviceError, PlaybackEngine
+from babbla.provider_base import AudioFrame
 
 
 def _sine_wave_pcm(duration_sec: float, sample_rate: int, frequency_hz: float = 440.0) -> bytes:

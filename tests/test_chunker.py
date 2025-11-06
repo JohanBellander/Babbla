@@ -1,13 +1,13 @@
-from voicecli.chunker import chunk_text
+from babbla.chunker import chunk_text
 
 
 def test_split_basic():
-    text = "Hello world! This is VoiceCLI. Enjoy streaming."
+    text = "Hello world! This is Babbla. Enjoy streaming."
     chunks = chunk_text(text, max_chars=25)
 
     assert chunks == [
         "Hello world!",
-        "This is VoiceCLI.",
+        "This is Babbla.",
         "Enjoy streaming.",
     ]
 

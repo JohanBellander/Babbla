@@ -1,4 +1,4 @@
-"""Module executed when running `python -m voicecli`."""
+"""Module executed when running `python -m babbla`."""
 
 from . import main
 

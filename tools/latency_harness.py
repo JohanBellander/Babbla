@@ -6,12 +6,12 @@ from pathlib import Path
 from statistics import fmean
 from typing import List
 
-from voicecli.elevenlabs_provider import ElevenLabsProvider
-from voicecli.metrics import ChunkMetrics, emit_metrics_json, summarise_metrics
-from voicecli.streaming_controller import StreamingController
+from babbla.elevenlabs_provider import ElevenLabsProvider
+from babbla.metrics import ChunkMetrics, emit_metrics_json, summarise_metrics
+from babbla.streaming_controller import StreamingController
 
 HARNESS_TEXT = (
-    "VoiceCLI harness paragraph. "
+    "Babbla harness paragraph. "
     "This text is used to exercise the streaming pipeline and produce metrics. "
     "It should be long enough to span multiple chunks and simulate a realistic "
     "synthesis workload for latency tracking."
@@ -36,7 +36,7 @@ class DummyPlayback:
 
 
 def run_iteration(text: str) -> List[ChunkMetrics]:
-    provider = ElevenLabsProvider()
+    provider = ElevenLabsProvider(simulate=True)
     playback = DummyPlayback()
     controller = StreamingController(
         provider,
@@ -82,7 +82,7 @@ def build_report(all_metrics: List[List[ChunkMetrics]], output: Path) -> dict:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="VoiceCLI latency harness")
+    parser = argparse.ArgumentParser(description="Babbla latency harness")
     parser.add_argument("--iterations", type=int, default=5, help="Number of runs to average")
     parser.add_argument("--output", type=Path, default=Path("latency_report.json"))
     return parser.parse_args(argv)

@@ -1,5 +1,5 @@
 """
-Latency metrics utilities for VoiceCLI.
+Latency metrics utilities for Babbla.
 
 The module tracks per-chunk timing information and produces summary statistics
 that can be emitted as JSON for diagnostics.
@@ -25,15 +25,16 @@ class ChunkMetrics:
 
     @property
     def synthesis_latency_ms(self) -> float:
-        return max(0.0, (self.first_frame - self.request_start) * 1000.0)
+        # Round to avoid floating point representation artifacts (tests expect exact values).
+        return round(max(0.0, (self.first_frame - self.request_start) * 1000.0), 6)
 
     @property
     def startup_latency_ms(self) -> float:
-        return max(0.0, (self.playback_start - self.request_start) * 1000.0)
+        return round(max(0.0, (self.playback_start - self.request_start) * 1000.0), 6)
 
     @property
     def buffer_fill_latency_ms(self) -> float:
-        return max(0.0, (self.playback_start - self.first_frame) * 1000.0)
+        return round(max(0.0, (self.playback_start - self.first_frame) * 1000.0), 6)
 
 
 def summarise_metrics(metrics: Sequence[ChunkMetrics]) -> dict[str, float]:

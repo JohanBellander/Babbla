@@ -1,5 +1,5 @@
 """
-Custom exception hierarchy for VoiceCLI.
+Custom exception hierarchy for Babbla.
 """
 
 from __future__ import annotations
@@ -7,15 +7,15 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 
-class VoiceCLIError(Exception):
-    """Base class for VoiceCLI exceptions."""
+class BabblaError(Exception):
+    """Base class for Babbla exceptions."""
 
 
-class AudioDeviceError(VoiceCLIError):
+class AudioDeviceError(BabblaError):
     """Raised when audio playback or recording fails."""
 
 
-class ProviderError(VoiceCLIError):
+class ProviderError(BabblaError):
     """Base class for provider-related failures."""
 
 

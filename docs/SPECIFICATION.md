@@ -47,7 +47,7 @@ A cross-platform (initial focus: Windows) command-line tool that converts input 
 ## 5. Architecture
 ### Components
 1. CLI Layer (argparse): argument parsing & command dispatch.
-2. Config Manager: merges CLI flags, env vars, optional `voicecli.toml`.
+2. Config Manager: merges CLI flags, env vars, optional `babbla.toml`.
 3. Text Normalizer & Chunker: sentence splitting, max length, whitespace cleanup.
 4. Provider Abstraction: `TTSProvider` interface; `ElevenLabsProvider` implementation.
 5. Streaming Controller: orchestrates chunk send & frame receive.
@@ -63,10 +63,10 @@ Text → Chunker → (for each chunk) Provider stream → frames → decode PCM 
 ## 6. Configuration
 ### Sources
 - Environment: `ELEVENLABS_API_KEY`, others optional.
-- Config file: `voicecli.toml`.
+- Config file: `babbla.toml`.
 - CLI flags override all.
 
-### Example `voicecli.toml`
+### Example `babbla.toml`
 ```toml
 voice_id = "Rachel"
 model_id = "eleven_monolingual_v1"
@@ -74,14 +74,14 @@ chunk_max_chars = 200
 prebuffer_ms = 80
 stability = 0.5
 similarity_boost = 0.8
-cache_dir = "C:/Users/<user>/.voicecli/cache"
+cache_dir = "C:/Users/<user>/.babbla/cache"
 log_format = "HUMAN"
 retry_attempts = 2
 ```
 
 ## 7. CLI Usage
 ```
-voicecli [TEXT] [options]
+babbla [TEXT] [options]
 
 Options:
   --file <path>            Read text from file.
@@ -267,7 +267,7 @@ Future: Prometheus endpoint or OpenTelemetry traces.
 - Offline local model fallback.
 
 ## 22. Success Criteria
-MVP success: `voicecli "Hello low latency world."` produces audible speech with first audio frame <700 ms.
+MVP success: `babbla "Hello low latency world."` produces audible speech with first audio frame <700 ms.
 Phase success tracked by `latency_report.json` harness.
 
 ## 23. Glossary

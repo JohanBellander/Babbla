@@ -15,8 +15,8 @@ from difflib import SequenceMatcher
 
 CACHE_TTL = timedelta(hours=24)
 API_URL = "https://api.elevenlabs.io/v1/voices"
-VOICECLI_HOME = Path(os.getenv("VOICECLI_HOME", Path.home() / ".voicecli"))
-CACHE_FILE = VOICECLI_HOME / "voices.json"
+BABBLA_HOME = Path(os.getenv("BABBLA_HOME", Path.home() / ".babbla"))
+CACHE_FILE = BABBLA_HOME / "voices.json"
 
 
 def fetch_voices(
@@ -64,7 +64,9 @@ def fuzzy_match(query: str, voices: Iterable[dict[str, object]]) -> str | None:
         name_lower = name.lower()
         score = 0.0
         if query_lower in name_lower:
-            score = len(query_lower) / len(name_lower)
+            # Treat substring containment as at least a moderate match (>=0.5) so
+            # short queries like "Liam" match "Liam Prime".
+            score = max(len(query_lower) / len(name_lower), 0.5)
         else:
             score = SequenceMatcher(None, query_lower, name_lower).ratio()
         if score > best_score:
@@ -75,7 +77,7 @@ def fuzzy_match(query: str, voices: Iterable[dict[str, object]]) -> str | None:
 
 
 def _resolve_cache_path(cache_dir: Path | None) -> Path:
-    directory = cache_dir if cache_dir is not None else VOICECLI_HOME
+    directory = cache_dir if cache_dir is not None else BABBLA_HOME
     directory.mkdir(parents=True, exist_ok=True)
     return directory / "voices.json"
 

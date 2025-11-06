@@ -3,10 +3,10 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "voicecli"
+name = "babbla"
 version = "0.0.1"
 description = "Low-latency ElevenLabs streaming TTS CLI (scaffold)"
-authors = [{name = "VoiceCLI Contributors"}]
+authors = [{name = "Babbla Contributors"}]
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-voicecli = "voicecli.cli:main"
+babbla = "babbla.cli:main"
 
 [tool.setuptools.package-dir]
 "" = "src"

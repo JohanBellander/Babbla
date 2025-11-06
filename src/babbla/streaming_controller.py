@@ -67,7 +67,15 @@ class StreamingController:
         sample_rate: int,
         max_chars: int | None = None,
         provider_settings: Optional[dict[str, object]] = None,
-    ) -> List[ChunkMetrics]:        chunk_limit = max_chars if max_chars is not None else self.chunk_max_chars\n        chunks = self.chunker(text, max_chars=chunk_limit)
+    ) -> List[ChunkMetrics]:
+        """Stream the provided text, chunking and handling retries.
+
+        Returns a list of collected ChunkMetrics instances. The method was
+        previously corrupted by an inline literal "\n" artifact; this restores
+        proper logic.
+        """
+        chunk_limit = max_chars if max_chars is not None else self.chunk_max_chars
+        chunks = self.chunker(text, max_chars=chunk_limit)
         if not chunks:
             logger.warning("No text provided for streaming.")
             return self.metrics
@@ -267,7 +275,9 @@ class StreamingController:
         return flag
 
     def _record_metric(self, metric: ChunkMetrics, underrun: bool) -> None:
-        self._record_metric(metric, underrun)
+        # Append metric to overall collection and update recent history for adaptive logic.
+        # Fixed recursion bug: previously this method called itself causing infinite recursion.
+        self.metrics.append(metric)
         self._recent_metrics.append(metric)
         self._recent_underruns.append(underrun)
         if len(self._recent_metrics) > 5:

@@ -14,14 +14,14 @@ Reference: `docs/SPECIFICATION.md`
 ### Phase 1: MVP Scaffold
 Goal: Single sentence spoken end-to-end (manual chunk).
 Deliverables:
-- Project structure (`src/voicecli/`)
+- Project structure (`src/babbla/`)
 - `config.py` (load env + defaults)
 - `provider_base.py` (TTSProvider interface)
 - `elevenlabs_provider.py` (connect + dummy stream stub returning simulated frames)
 - `playback.py` (basic PCM16 playback using sounddevice)
 - `cli.py` minimal parsing (text arg, voice id, model)
 - `requirements.txt` (argparse, sounddevice, websockets, requests)
-Acceptance: `python -m voicecli "Hello world"` speaks audio (stub or real if key present).
+Acceptance: `python -m babbla "Hello world"` speaks audio (stub or real if key present).
 
 ### Phase 2: Chunking & Overlap
 Goal: Paragraph plays smoothly.
@@ -72,18 +72,18 @@ Acceptance: Dry-run lists plan; adaptive system logs adjustments.
 
 ## File Layout (Initial)
 ```
-src/voicecli/__init__.py
-src/voicecli/cli.py
-src/voicecli/config.py
-src/voicecli/provider_base.py
-src/voicecli/elevenlabs_provider.py
-src/voicecli/playback.py
-src/voicecli/chunker.py (Phase 2)
-src/voicecli/cache.py (Phase 3)
-src/voicecli/voice_catalog.py (Phase 3)
-src/voicecli/logging_utils.py (Phase 4)
-src/voicecli/metrics.py (Phase 2+)
-src/voicecli/errors.py (Phase 4)
+src/babbla/__init__.py
+src/babbla/cli.py
+src/babbla/config.py
+src/babbla/provider_base.py
+src/babbla/elevenlabs_provider.py
+src/babbla/playback.py
+src/babbla/chunker.py (Phase 2)
+src/babbla/cache.py (Phase 3)
+src/babbla/voice_catalog.py (Phase 3)
+src/babbla/logging_utils.py (Phase 4)
+src/babbla/metrics.py (Phase 2+)
+src/babbla/errors.py (Phase 4)
 ```
 
 ## Testing Strategy Summary

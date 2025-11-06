@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from voicecli.metrics import ChunkMetrics, emit_metrics_json, summarise_metrics
+from babbla.metrics import ChunkMetrics, emit_metrics_json, summarise_metrics
 
 
 def test_metrics_derivations():

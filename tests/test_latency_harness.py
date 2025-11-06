@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from tools import latency_harness
-from voicecli.metrics import ChunkMetrics
+from babbla.metrics import ChunkMetrics
 
 
 def _metric(offset: float) -> ChunkMetrics:

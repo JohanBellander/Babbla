@@ -4,7 +4,7 @@ import io
 import types
 from contextlib import redirect_stdout
 
-from voicecli import cli
+from babbla import cli
 
 
 def test_cli_requires_text():

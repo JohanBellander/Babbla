@@ -11,7 +11,7 @@ from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import Any, Mapping, MutableMapping, Tuple
 
-DEFAULT_CONFIG_FILENAME = "voicecli.toml"
+DEFAULT_CONFIG_FILENAME = "babbla.toml"
 
 
 @dataclass
@@ -118,21 +118,21 @@ def _load_from_file(path: Path) -> Tuple[dict[str, Any], dict[str, Any]]:
 
 ENV_KEY_MAP: dict[str, Tuple[str, callable]] = {
     "ELEVENLABS_API_KEY": ("api_key", str),
-    "VOICECLI_VOICE_ID": ("voice_id", str),
-    "VOICECLI_MODEL_ID": ("model_id", str),
-    "VOICECLI_CHUNK_MAX_CHARS": ("chunk_max_chars", int),
-    "VOICECLI_PREBUFFER_MS": ("prebuffer_ms", int),
-    "VOICECLI_STABILITY": ("stability", float),
-    "VOICECLI_SIMILARITY": ("similarity_boost", float),
-    "VOICECLI_STYLE": ("style", float),
-    "VOICECLI_RATE": ("rate", float),
-    "VOICECLI_CACHE_DIR": ("cache_dir", str),
-    "VOICECLI_CACHE_TTL": ("cache_ttl", int),
-    "VOICECLI_LOG_FORMAT": ("log_format", str),
-    "VOICECLI_JSON_LOG": ("json_log", lambda v: str(v).lower() in {"1", "true", "yes"}),
-    "VOICECLI_DRY_RUN": ("dry_run", lambda v: str(v).lower() in {"1", "true", "yes"}),
-    "VOICECLI_RETRY_ATTEMPTS": ("retry_attempts", int),
-    "VOICECLI_TIMEOUT_MS": ("timeout_ms", int),
+    "BABBLA_VOICE_ID": ("voice_id", str),
+    "BABBLA_MODEL_ID": ("model_id", str),
+    "BABBLA_CHUNK_MAX_CHARS": ("chunk_max_chars", int),
+    "BABBLA_PREBUFFER_MS": ("prebuffer_ms", int),
+    "BABBLA_STABILITY": ("stability", float),
+    "BABBLA_SIMILARITY": ("similarity_boost", float),
+    "BABBLA_STYLE": ("style", float),
+    "BABBLA_RATE": ("rate", float),
+    "BABBLA_CACHE_DIR": ("cache_dir", str),
+    "BABBLA_CACHE_TTL": ("cache_ttl", int),
+    "BABBLA_LOG_FORMAT": ("log_format", str),
+    "BABBLA_JSON_LOG": ("json_log", lambda v: str(v).lower() in {"1", "true", "yes"}),
+    "BABBLA_DRY_RUN": ("dry_run", lambda v: str(v).lower() in {"1", "true", "yes"}),
+    "BABBLA_RETRY_ATTEMPTS": ("retry_attempts", int),
+    "BABBLA_TIMEOUT_MS": ("timeout_ms", int),
 }
 
 

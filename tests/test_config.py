@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from voicecli.config import load_config
+from babbla.config import load_config
 
 
 def _make_args(**overrides):
@@ -35,7 +35,7 @@ def _make_args(**overrides):
 
 
 def test_config_precedence_cli_env_file(tmp_path):
-    config_path = tmp_path / "voicecli.toml"
+    config_path = tmp_path / "babbla.toml"
     config_path.write_text(
         "\n".join(
             [
@@ -49,9 +49,9 @@ def test_config_precedence_cli_env_file(tmp_path):
     )
 
     env = {
-        "VOICECLI_VOICE_ID": "EnvVoice",
-        "VOICECLI_CHUNK_MAX_CHARS": "175",
-        "VOICECLI_STABILITY": "0.4",
+        "BABBLA_VOICE_ID": "EnvVoice",
+        "BABBLA_CHUNK_MAX_CHARS": "175",
+        "BABBLA_STABILITY": "0.4",
     }
 
     args = _make_args(
@@ -70,10 +70,10 @@ def test_config_precedence_cli_env_file(tmp_path):
 
 
 def test_config_env_overrides_file(tmp_path):
-    config_path = tmp_path / "voicecli.toml"
+    config_path = tmp_path / "babbla.toml"
     config_path.write_text('model_id = "file_model"\n', encoding="utf-8")
 
-    env = {"VOICECLI_MODEL_ID": "env_model"}
+    env = {"BABBLA_MODEL_ID": "env_model"}
     args = _make_args(config=str(config_path))
 
     config = load_config(args, env=env)

@@ -1,9 +1,9 @@
 """
-Command-line interface for the VoiceCLI MVP.
+Command-line interface for the Babbla MVP.
 
-The CLI currently orchestrates a single-chunk synthesis flow using the stub
-ElevenLabs provider and the sounddevice-backed playback engine. Future beads
-extend this to multi-chunk streaming, metrics, caching, and real API calls.
+The CLI streams a single chunk of text using the ElevenLabs provider and the
+sounddevice-backed playback engine. Future beads extend this to multi-chunk
+streaming, metrics, caching, and richer error handling.
 """
 
 from __future__ import annotations
@@ -20,6 +20,13 @@ from .config import load_config
 from .elevenlabs_provider import ElevenLabsProvider
 from .playback import AudioDeviceError, PlaybackEngine
 from .provider_base import AudioFrame
+from .errors import (
+    ProviderAuthError,
+    ProviderConnectionError,
+    ProviderNetworkError,
+    ProviderRateLimitError,
+    ProviderError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +34,7 @@ logger = logging.getLogger(__name__)
 def create_parser() -> argparse.ArgumentParser:
     """Create the top-level argument parser for the CLI."""
     parser = argparse.ArgumentParser(
-        prog="voicecli",
+        prog="babbla",
         description=(
             "Convert text to speech using ElevenLabs streaming APIs.\n"
             "This MVP streams a single chunk using the built-in stub provider."
@@ -48,7 +55,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--config",
         metavar="PATH",
-        help="Path to an optional configuration file (voicecli.toml).",
+        help="Path to an optional configuration file (babbla.toml).",
     )
     parser.add_argument(
         "--api-key",
@@ -136,7 +143,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--version",
         action="version",
-        version="voicecli 0.0.1-dev",
+        version="babbla 0.0.1-dev",
     )
     parser.add_argument(
         "-v",
@@ -184,7 +191,11 @@ def _resolve_input_text(args: argparse.Namespace) -> str:
             raise SystemExit(f"Failed to read file '{path}': {exc}") from exc
 
     if not sys.stdin.isatty():
-        data = sys.stdin.read().strip()
+        try:
+            data = sys.stdin.read().strip()
+        except OSError:
+            logger.debug("stdin read failed; returning empty input.")
+            return ""
         if data:
             return data
 
@@ -204,7 +215,7 @@ def _render_voice_list(provider: ElevenLabsProvider) -> None:
 
 
 def _build_provider_settings(config) -> dict[str, object]:
-    return {
+    settings = {
         "voice_id": config.voice_id,
         "model_id": config.model_id,
         "stability": config.stability,
@@ -212,6 +223,9 @@ def _build_provider_settings(config) -> dict[str, object]:
         "style": config.style,
         "rate": config.rate,
     }
+    if "optimize_streaming_latency" in config.extra:
+        settings["optimize_streaming_latency"] = config.extra["optimize_streaming_latency"]
+    return settings
 
 
 def _stream_single_chunk(
@@ -240,29 +254,31 @@ def _stream_single_chunk(
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
-    """Entry point invoked by `python -m voicecli` or console scripts."""
+    """Entry point invoked by `python -m babbla` or console scripts."""
     parser = create_parser()
     args = parser.parse_args(argv)
 
     _configure_logging(args.verbose, args.quiet)
-    logger.info("VoiceCLI starting up.")
+    logger.info("Babbla starting up.")
     config = load_config(args)
     logger.debug("Loaded configuration: %s", config)
 
-    provider = ElevenLabsProvider()
-
     if args.list_voices:
-        provider.connect()
-        _render_voice_list(provider)
-        provider.close()
+        if not _ensure_api_key(config):
+            return 2
+        provider = _create_provider(config)
+        try:
+            provider.connect()
+            _render_voice_list(provider)
+        finally:
+            provider.close()
         return 0
 
-    text = _resolve_input_text(args)
-    if not text:
-        parser.print_help()
-        return 2
-
     if args.dry_run:
+        text = _resolve_input_text(args)
+        if not text:
+            parser.print_help()
+            return 2
         chunks = chunk_text(text, max_chars=config.chunk_max_chars)
         settings = _build_provider_settings(config)
         print("Dry run mode. No synthesis performed.")
@@ -278,6 +294,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             )
         return 0
 
+    if not _ensure_api_key(config):
+        return 2
+
+    text = _resolve_input_text(args)
+    if not text:
+        parser.print_help()
+        return 2
+
+    provider = _create_provider(config)
+
     playback_engine = PlaybackEngine()
 
     try:
@@ -289,6 +315,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             playback_engine=playback_engine,
             settings=_build_provider_settings(config),
         )
+    except ProviderAuthError as exc:
+        logger.error("Authentication error: %s", exc)
+        print("babbla: ElevenLabs authentication failed. Check your API key.")
+        return 2
+    except ProviderRateLimitError as exc:
+        logger.error("Rate limited by ElevenLabs (retry_after=%s)", getattr(exc, "retry_after", None))
+        print("babbla: Rate limited by ElevenLabs. Please wait and try again.")
+        return 3
+    except (ProviderConnectionError, ProviderNetworkError) as exc:
+        logger.error("Network error while streaming: %s", exc)
+        print("babbla: Network error while streaming from ElevenLabs.")
+        return 3
+    except ProviderError as exc:
+        logger.error("Provider error: %s", exc)
+        print(f"babbla: Provider error - {exc}")
+        return 3
     except AudioDeviceError as exc:
         logger.error("Playback failure: %s", exc)
         return 4
@@ -306,6 +348,30 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         total_ms,
     )
     return 0
+
+
+def _create_provider(config) -> ElevenLabsProvider:
+    timeout_seconds = max(0.1, config.timeout_ms / 1000.0)
+    optimize_latency = config.extra.get("optimize_streaming_latency", 2)
+    return ElevenLabsProvider(
+        api_key=config.api_key,
+        default_voice_id=config.voice_id,
+        default_model_id=config.model_id,
+        sample_rate=16_000,
+        timeout=timeout_seconds,
+        optimize_streaming_latency=int(optimize_latency),
+    )
+
+
+def _ensure_api_key(config) -> bool:
+    if config.api_key:
+        return True
+    logger.error("ElevenLabs API key not provided.")
+    print(
+        "babbla: ElevenLabs API key is required. "
+        "Set ELEVENLABS_API_KEY, add it to babbla.toml, or pass --api-key."
+    )
+    return False
 
 
 if __name__ == "__main__":  # pragma: no cover - allows `python cli.py`
