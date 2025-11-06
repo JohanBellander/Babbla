@@ -9,6 +9,7 @@ streaming, metrics, caching, and richer error handling.
 from __future__ import annotations
 
 import argparse
+import subprocess
 import logging
 import sys
 import time
@@ -158,6 +159,11 @@ def create_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Suppress non-essential log output.",
     )
+    parser.add_argument(
+        "--detach",
+        action="store_true",
+        help="Run synthesis in a background process and return immediately (non-blocking).",
+    )
     return parser
 
 
@@ -257,6 +263,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     """Entry point invoked by `python -m babbla` or console scripts."""
     parser = create_parser()
     args = parser.parse_args(argv)
+
+    # Detach early: spawn a background process running the same command minus --detach.
+    if getattr(args, "detach", False):
+        raw_args = list(argv) if argv is not None else sys.argv[1:]
+        filtered = [a for a in raw_args if a != "--detach"]
+        cmd = [sys.executable, "-m", "babbla"] + filtered
+        try:
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            print(f"babbla: detached synthesis started (PID={proc.pid}).")
+            return 0
+        except OSError as exc:
+            print(f"babbla: failed to start detached process: {exc}")
+            return 1
 
     _configure_logging(args.verbose, args.quiet)
     logger.info("Babbla starting up.")
