@@ -80,6 +80,16 @@ After it finishes, verify with:
 babbla --help
 ```
 
+### Global one-liner (PowerShell)
+
+For a rapid install plus verification in one command (user site):
+
+```powershell
+py -3 -m pip install --user --upgrade git+https://github.com/JohanBellander/babbla.git; babbla --dry-run "Install check"
+```
+
+> Use `pipx install git+https://github.com/JohanBellander/babbla.git` for an isolated user-level install.
+
 > For an isolated install, run the command inside a virtual environment or use
 > [`pipx`](https://pypa.github.io/pipx/):
 > `pipx install git+https://github.com/JohanBellander/babbla.git`.
