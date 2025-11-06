@@ -22,6 +22,7 @@ tests so future milestones can focus on production integration.
 - Sentence chunker, phrase cache, latency metrics utilities, and streaming controller
 - Structured logging with human or JSON output formats
 - pytest-based test suite and latency harness script
+ - Detach mode (`--detach`) to run streaming in the background and return immediately
 
 ## Quick Start
 1. Create and activate a virtual environment
@@ -137,3 +138,41 @@ Events include `chunk_start`, `first_frame`, `playback_start`, `chunk_complete`,
 
 Refer to `docs/SPECIFICATION.md` for longer-term design details and future
 milestones.
+\n+## Asynchronous Detach Mode
+\n+Use `--detach` to start a background streaming process and return control to your shell instantly. This is helpful when you want audio playback while continuing other terminal work.
+\n+### Examples
+\n+PowerShell:
+```powershell
+babbla --detach "Working while audio plays"
+```
+\n+Bash:
+```bash
+babbla --detach "Working while audio plays"
+```
+\n+The command prints a background PID:
+```
+Started background babbla process (PID 12345)
+```
+You can end it early with:
+```powershell
+Stop-Process -Id 12345  # PowerShell
+```
+or
+```bash
+kill 12345  # Bash
+```
+\n+### Caveats
+- Output from the background process is suppressed (no logs). Use normal mode if you need progress events.
+- Configuration flags (`--voice`, `--model`, etc.) are passed through; incompatible flags are filtered.
+- Detach mode does not yet provide IPC for status or metrics; run without `--detach` for detailed timing.
+- Audio continues until playback completes or the process is terminated.
+\n+### Recommended Pattern
+Run an initial foreground invocation to validate settings:
+```powershell
+babbla --dry-run "Config check"
+```
+Then start detached playback:
+```powershell
+babbla --detach "Narrating while I work"
+```
+\n+Metrics collection and richer monitoring in detach mode are planned enhancements.
