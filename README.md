@@ -6,6 +6,15 @@ codebase provides the project scaffolding, a stubbed provider, configuration
 loading, playback plumbing, metrics utilities, and a growing set of automated
 tests so future milestones can focus on production integration.
 
+> Repository rename in progress: if the remote is still `voicecli`, first rename it
+> in GitHub Settings to `babbla`, then run:
+> ```powershell
+> git remote set-url origin https://github.com/JohanBellander/babbla.git
+> git pull --rebase
+> ```
+> Existing clones of `voicecli` will continue to work via GitHub's redirect, but
+> updating the remote URL avoids an extra redirect hop.
+
 ## Features
 - Stub ElevenLabs provider that simulates five-frame streaming output
 - Sounddevice-backed playback engine with optional WAV mirroring
